@@ -125,13 +125,16 @@ func openPort(name string, baud int, databits byte, parity Parity, stopbits Stop
 		return
 	}
 
-	return &Port{f: f}, nil
+	return &Port{f: f, fd: int(fd)}, nil
 }
 
 type Port struct {
 	// We intentionly do not use an "embedded" struct so that we
 	// don't export File
-	f *os.File
+	f  *os.File
+
+	// Saving a reference to the file descriptor so we don't set as blocking during Flush() calls
+	fd int
 }
 
 func (p *Port) Read(b []byte) (n int, err error) {
@@ -148,7 +151,7 @@ func (p *Port) Flush() error {
 	const TCFLSH = 0x540B
 	_, _, errno := unix.Syscall(
 		unix.SYS_IOCTL,
-		uintptr(p.f.Fd()),
+		uintptr(p.fd),
 		uintptr(TCFLSH),
 		uintptr(unix.TCIOFLUSH),
 	)
