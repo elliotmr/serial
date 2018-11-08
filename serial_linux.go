@@ -121,7 +121,7 @@ func openPort(name string, baud int, databits byte, parity Parity, stopbits Stop
 		return nil, errno
 	}
 
-	if err = unix.SetNonblock(int(fd), false); err != nil {
+	if err = unix.SetNonblock(int(fd), go111OrHigher); err != nil {
 		return
 	}
 
