@@ -162,6 +162,20 @@ func (p *Port) Flush() error {
 	return errno
 }
 
+func (p *Port) Reset() error {
+	const USBDEVFS_RESET = (85 << 8) | 20
+	_, _, errno := unix.Syscall(
+		unix.SYS_IOCTL,
+		uintptr(p.fd),
+		uintptr(USBDEVFS_RESET),
+		0,
+	)
+	if errno == 0 {
+		return nil
+	}
+	return errno
+}
+
 func (p *Port) Close() (err error) {
 	return p.f.Close()
 }
